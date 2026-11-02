@@ -50,7 +50,7 @@ jobs:
             -enableCodeCoverage YES \
             -parallel-testing-enabled YES \
             -resultBundlePath build/parallel.xcresult | xcbeautify
-      - uses: ./
+      - uses: $/
         id: report
         with:
           path: fixtures/SampleApp/build/parallel.xcresult
