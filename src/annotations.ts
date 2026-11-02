@@ -1,4 +1,4 @@
-import type { AnnotationProperties } from "./actions.ts";
+import type { AnnotationProperties } from "@actions/core";
 import type { Report } from "./report.ts";
 
 export interface Annotation {
@@ -24,7 +24,7 @@ export function collectAnnotations(
           ? `Build ${issue.severity} in ${issue.target}`
           : `Build ${issue.severity}`,
         file: issue.location && toWorkspacePath(issue.location.file),
-        line: issue.location?.line,
+        startLine: issue.location?.line,
       },
     });
   }
@@ -37,7 +37,7 @@ export function collectAnnotations(
         properties: {
           title: `${failure.name} failed`,
           file: message.location && toWorkspacePath(message.location.file),
-          line: message.location?.line,
+          startLine: message.location?.line,
         },
       });
     }

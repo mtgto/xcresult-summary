@@ -21,11 +21,7 @@ if [ "${SKIP_BUILD:-}" != "1" ]; then
 fi
 set -e
 
-# Replace the absolute repository path and device IDs so fixtures don't depend on the machine.
-sanitize() {
-  sed -e "s#$ROOT#/WORKSPACE#g" -e "s#${ROOT//\//\\\\/}#\\\\/WORKSPACE#g" |
-    sed -E 's#("deviceId" *: *")[^"]*"#\1DEVICE-ID"#g'
-}
+sanitize() { node "$ROOT/scripts/sanitize-fixture.ts" "$ROOT"; }
 
 xcrun xcresulttool get test-results summary --path "$BUNDLE" | sanitize > "$OUT/summary.json"
 xcrun xcresulttool get test-results tests --path "$BUNDLE" | sanitize > "$OUT/tests.json"

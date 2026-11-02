@@ -133,8 +133,10 @@ test("parseSourceURL", () => {
 
 test("toWorkspacePath", () => {
   expect(toWorkspacePath("/ws/Sources/A.swift", "/ws")).toBe("Sources/A.swift");
+  expect(toWorkspacePath("/ws/Sources/A.swift", "/ws/")).toBe("Sources/A.swift");
   expect(toWorkspacePath("/ws/..foo/A.swift", "/ws")).toBe("..foo/A.swift");
   expect(toWorkspacePath("/other/A.swift", "/ws")).toBeUndefined();
+  expect(toWorkspacePath("/wsx/A.swift", "/ws")).toBeUndefined();
   expect(toWorkspacePath("/ws", "/ws")).toBeUndefined();
   expect(toWorkspacePath("A.swift", "/ws")).toBeUndefined();
 });
@@ -144,7 +146,12 @@ describe("collectAnnotations", () => {
     const { annotations, omitted } = collectAnnotations(buildReport(fixtures), relative);
     expect(omitted).toBe(0);
     expect(
-      annotations.map((a) => [a.level, a.properties.file, a.properties.line, a.properties.title]),
+      annotations.map((a) => [
+        a.level,
+        a.properties.file,
+        a.properties.startLine,
+        a.properties.title,
+      ]),
     ).toEqual([
       ["warning", "fixtures/SampleApp/Sources/SampleApp/Calculator.swift", 9, "Build warning"],
       [

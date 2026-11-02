@@ -57,5 +57,8 @@ pnpm build   # dist/index.mjs must be committed
 To try the action locally:
 
 ```sh
-env INPUT_PATH=fixtures/SampleApp/build/parallel.xcresult INPUT_SHOW-PASSED-TESTS=true INPUT_SHOW-CODE-COVERAGE=true node dist/index.mjs
+touch fixtures/SampleApp/build/summary.md
+env INPUT_PATH=fixtures/SampleApp/build/parallel.xcresult \
+  INPUT_SHOW-PASSED-TESTS=true INPUT_SHOW-CODE-COVERAGE=true INPUT_FAIL-ON-ERROR=false \
+  GITHUB_STEP_SUMMARY=fixtures/SampleApp/build/summary.md node dist/index.mjs
 ```

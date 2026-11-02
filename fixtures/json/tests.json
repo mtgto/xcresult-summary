@@ -1,158 +1,158 @@
 {
-  "devices" : [
+  "devices": [
     {
-      "architecture" : "arm64",
-      "deviceId" : "DEVICE-ID",
-      "deviceName" : "My Mac",
-      "modelName" : "Mac mini",
-      "osBuildNumber" : "26B123",
-      "osVersion" : "27.2",
-      "platform" : "macOS"
+      "architecture": "arm64",
+      "deviceId": "DEVICE-ID",
+      "deviceName": "My Mac",
+      "modelName": "Mac mini",
+      "osBuildNumber": "26B123",
+      "osVersion": "27.2",
+      "platform": "macOS"
     }
   ],
-  "testNodes" : [
+  "testNodes": [
     {
-      "children" : [
+      "children": [
         {
-          "children" : [
+          "children": [
             {
-              "children" : [
+              "children": [
                 {
-                  "duration" : "0.00075s",
-                  "durationInSeconds" : 0.0007530450820922852,
-                  "name" : "testAdd()",
-                  "nodeIdentifier" : "CalculatorXCTests/testAdd()",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testAdd",
-                  "nodeType" : "Test Case",
-                  "result" : "Passed"
+                  "duration": "0.00075s",
+                  "durationInSeconds": 0.0007530450820922852,
+                  "name": "testAdd()",
+                  "nodeIdentifier": "CalculatorXCTests/testAdd()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testAdd",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
                 },
                 {
-                  "children" : [
+                  "children": [
                     {
-                      "name" : "Test skipped - skipped on purpose",
-                      "nodeType" : "Skip Message"
+                      "name": "Test skipped - skipped on purpose",
+                      "nodeType": "Skip Message"
                     }
                   ],
-                  "duration" : "0.0013s",
-                  "durationInSeconds" : 0.001255035400390625,
-                  "name" : "testSkipped()",
-                  "nodeIdentifier" : "CalculatorXCTests/testSkipped()",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testSkipped",
-                  "nodeType" : "Test Case",
-                  "result" : "Skipped"
+                  "duration": "0.0013s",
+                  "durationInSeconds": 0.001255035400390625,
+                  "name": "testSkipped()",
+                  "nodeIdentifier": "CalculatorXCTests/testSkipped()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testSkipped",
+                  "nodeType": "Test Case",
+                  "result": "Skipped"
                 },
                 {
-                  "children" : [
+                  "children": [
                     {
-                      "name" : "XCTAssertEqual failed: (\"2\") is not equal to (\"3\") - 5 - 3 should be 2",
-                      "nodeType" : "Failure Message",
-                      "sourceLocation" : {
-                        "filePath" : "/WORKSPACE/fixtures/SampleApp/Tests/SampleAppTests/CalculatorXCTests.swift",
-                        "lineNumber" : 12
+                      "name": "XCTAssertEqual failed: (\"2\") is not equal to (\"3\") - 5 - 3 should be 2",
+                      "nodeType": "Failure Message",
+                      "sourceLocation": {
+                        "filePath": "/WORKSPACE/fixtures/SampleApp/Tests/SampleAppTests/CalculatorXCTests.swift",
+                        "lineNumber": 12
                       }
                     }
                   ],
-                  "duration" : "0.53s",
-                  "durationInSeconds" : 0.5321799516677856,
-                  "name" : "testSubtractFails()",
-                  "nodeIdentifier" : "CalculatorXCTests/testSubtractFails()",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testSubtractFails",
-                  "nodeType" : "Test Case",
-                  "result" : "Failed"
+                  "duration": "0.53s",
+                  "durationInSeconds": 0.5321799516677856,
+                  "name": "testSubtractFails()",
+                  "nodeIdentifier": "CalculatorXCTests/testSubtractFails()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests/testSubtractFails",
+                  "nodeType": "Test Case",
+                  "result": "Failed"
                 }
               ],
-              "name" : "CalculatorXCTests",
-              "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests",
-              "nodeType" : "Test Suite",
-              "result" : "Failed"
+              "name": "CalculatorXCTests",
+              "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorXCTests",
+              "nodeType": "Test Suite",
+              "result": "Failed"
             },
             {
-              "children" : [
+              "children": [
                 {
-                  "children" : [
+                  "children": [
                     {
-                      "name" : "Expectation failed: Calculator().divide(1, 0) == 0\nCalculator().divide(1, 0) → nil: // intentionally failing",
-                      "nodeType" : "Failure Message",
-                      "sourceLocation" : {
-                        "filePath" : "/WORKSPACE/fixtures/SampleApp/Tests/SampleAppTests/CalculatorSwiftTests.swift",
-                        "lineNumber" : 12
+                      "name": "Expectation failed: Calculator().divide(1, 0) == 0\nCalculator().divide(1, 0) → nil: // intentionally failing",
+                      "nodeType": "Failure Message",
+                      "sourceLocation": {
+                        "filePath": "/WORKSPACE/fixtures/SampleApp/Tests/SampleAppTests/CalculatorSwiftTests.swift",
+                        "lineNumber": 12
                       }
                     }
                   ],
-                  "duration" : "0.00049s",
-                  "durationInSeconds" : 0.0004909038543701172,
-                  "name" : "divideByZeroFails()",
-                  "nodeIdentifier" : "CalculatorSwiftTests/divideByZeroFails()",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/divideByZeroFails()",
-                  "nodeType" : "Test Case",
-                  "result" : "Failed"
+                  "duration": "0.00049s",
+                  "durationInSeconds": 0.0004909038543701172,
+                  "name": "divideByZeroFails()",
+                  "nodeIdentifier": "CalculatorSwiftTests/divideByZeroFails()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/divideByZeroFails()",
+                  "nodeType": "Test Case",
+                  "result": "Failed"
                 },
                 {
-                  "duration" : "0.000031s",
-                  "durationInSeconds" : 3.0994415283203125e-05,
-                  "name" : "divide()",
-                  "nodeIdentifier" : "CalculatorSwiftTests/divide()",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/divide()",
-                  "nodeType" : "Test Case",
-                  "result" : "Passed"
+                  "duration": "0.000031s",
+                  "durationInSeconds": 0.000030994415283203125,
+                  "name": "divide()",
+                  "nodeIdentifier": "CalculatorSwiftTests/divide()",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/divide()",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
                 },
                 {
-                  "children" : [
+                  "children": [
                     {
-                      "duration" : "0.000042s",
-                      "durationInSeconds" : 4.1961669921875e-05,
-                      "name" : "1",
-                      "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
-                      "nodeType" : "Arguments",
-                      "result" : "Passed"
+                      "duration": "0.000042s",
+                      "durationInSeconds": 0.000041961669921875,
+                      "name": "1",
+                      "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+                      "nodeType": "Arguments",
+                      "result": "Passed"
                     },
                     {
-                      "duration" : "0.000064s",
-                      "durationInSeconds" : 6.389617919921875e-05,
-                      "name" : "2",
-                      "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
-                      "nodeType" : "Arguments",
-                      "result" : "Passed"
+                      "duration": "0.000064s",
+                      "durationInSeconds": 0.00006389617919921875,
+                      "name": "2",
+                      "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+                      "nodeType": "Arguments",
+                      "result": "Passed"
                     },
                     {
-                      "duration" : "0.000078s",
-                      "durationInSeconds" : 7.796287536621094e-05,
-                      "name" : "3",
-                      "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
-                      "nodeType" : "Arguments",
-                      "result" : "Passed"
+                      "duration": "0.000078s",
+                      "durationInSeconds": 0.00007796287536621094,
+                      "name": "3",
+                      "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)?args=4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+                      "nodeType": "Arguments",
+                      "result": "Passed"
                     }
                   ],
-                  "duration" : "0.000061s",
-                  "durationInSeconds" : 6.127357482910156e-05,
-                  "name" : "addZero(value:)",
-                  "nodeIdentifier" : "CalculatorSwiftTests/addZero(value:)",
-                  "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)",
-                  "nodeType" : "Test Case",
-                  "result" : "Passed"
+                  "duration": "0.000061s",
+                  "durationInSeconds": 0.00006127357482910156,
+                  "name": "addZero(value:)",
+                  "nodeIdentifier": "CalculatorSwiftTests/addZero(value:)",
+                  "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests/addZero(value:)",
+                  "nodeType": "Test Case",
+                  "result": "Passed"
                 }
               ],
-              "name" : "CalculatorSwiftTests",
-              "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests",
-              "nodeType" : "Test Suite",
-              "result" : "Failed"
+              "name": "CalculatorSwiftTests",
+              "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests/CalculatorSwiftTests",
+              "nodeType": "Test Suite",
+              "result": "Failed"
             }
           ],
-          "name" : "SampleAppTests",
-          "nodeIdentifierURL" : "test://com.apple.xcode/SampleApp/SampleAppTests",
-          "nodeType" : "Unit test bundle",
-          "result" : "Failed"
+          "name": "SampleAppTests",
+          "nodeIdentifierURL": "test://com.apple.xcode/SampleApp/SampleAppTests",
+          "nodeType": "Unit test bundle",
+          "result": "Failed"
         }
       ],
-      "name" : "SampleApp",
-      "nodeType" : "Test Plan",
-      "result" : "Failed"
+      "name": "SampleApp",
+      "nodeType": "Test Plan",
+      "result": "Failed"
     }
   ],
-  "testPlanConfigurations" : [
+  "testPlanConfigurations": [
     {
-      "configurationId" : "1",
-      "configurationName" : "Test Scheme Action"
+      "configurationId": "1",
+      "configurationName": "Test Scheme Action"
     }
   ]
 }

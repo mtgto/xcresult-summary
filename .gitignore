@@ -5,3 +5,4 @@ fixtures/SampleApp/.swiftpm/
 fixtures/SampleApp/build/
 .DS_Store
 .pnpm-store/
+.claude/
