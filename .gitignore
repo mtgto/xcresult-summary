@@ -3,6 +3,9 @@ node_modules/
 fixtures/SampleApp/.build/
 fixtures/SampleApp/.swiftpm/
 fixtures/SampleApp/build/
+fixtures/Greeter/.build/
+fixtures/Greeter/.swiftpm/
+fixtures/Greeter/build/
 .DS_Store
 .pnpm-store/
 .claude/

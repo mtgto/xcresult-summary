@@ -77,21 +77,18 @@ jobs:
           test "$TOTAL" = 6
           test "$FAILED" = 2
           test -n "$COVERAGE"
-      - name: Run sample tests split into two result bundles
-        working-directory: fixtures/SampleApp
+      # Result bundles of two schemes (test plans): `get test-results tests` of the merged bundle
+      # has only the first test plan, so the action has to read the tests of each bundle.
+      - name: Run tests of another package
+        working-directory: fixtures/Greeter
         run: |
           set -o pipefail
-          # Reuses the build of the previous xcodebuild test. xcodebuild fails because of the failing
-          # tests, so its exit status is ignored; the checks below catch a broken run.
-          for suite in CalculatorXCTests CalculatorSwiftTests; do
-            xcodebuild test-without-building \
-              -scheme SampleApp \
-              -destination 'platform=macOS' \
-              -only-testing "SampleAppTests/$suite" \
-              -resultBundlePath "build/$suite.xcresult" | xcbeautify || true
-          done
+          xcodebuild test \
+            -scheme Greeter \
+            -destination 'platform=macOS' \
+            -resultBundlePath build/Greeter.xcresult | xcbeautify
       # Every step has its own GITHUB_STEP_SUMMARY, so run the action directly to check its summary.
-      - name: Report the two result bundles
+      - name: Report result bundles of two schemes
         env:
           OUT: ${{ runner.temp }}/merged
         run: |
@@ -99,8 +96,8 @@ jobs:
           : > "$OUT/summary.md"
           : > "$OUT/output.txt"
           env \
-            "INPUT_PATH=$(printf '%s\n' fixtures/SampleApp/build/CalculatorXCTests.xcresult fixtures/SampleApp/build/CalculatorSwiftTests.xcresult)" \
-            "INPUT_TITLE=Sample (two bundles)" \
+            "INPUT_PATH=$(printf '%s\n' fixtures/SampleApp/build/parallel.xcresult fixtures/Greeter/build/Greeter.xcresult)" \
+            "INPUT_TITLE=Sample and Greeter" \
             "INPUT_SHOW-PASSED-TESTS=true" \
             "INPUT_SHOW-CODE-COVERAGE=true" \
             "INPUT_FAIL-ON-ERROR=false" \
@@ -110,8 +107,8 @@ jobs:
           cat "$OUT/summary.md" >> "$GITHUB_STEP_SUMMARY"
           output() { grep -A1 "^$1<<" "$OUT/output.txt" | tail -1; }
           echo "total=$(output total-tests) failed=$(output failed-tests)"
-          test "$(output total-tests)" = 6
+          test "$(output total-tests)" = 7
           test "$(output failed-tests)" = 2
-          # The tests of both bundles are listed (a merged bundle alone has only the first one).
+          # The tests of both bundles are listed.
           grep -q "SampleAppTests / CalculatorXCTests" "$OUT/summary.md"
-          grep -q "SampleAppTests / CalculatorSwiftTests" "$OUT/summary.md"
+          grep -q "GreeterTests / GreeterTests" "$OUT/summary.md"
