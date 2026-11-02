@@ -1,9 +1,15 @@
 name: CI
 
+# Skip changes that can't affect the build or the action (documentation and saved schemas).
 on:
   push:
     branches: [main]
+    paths-ignore: &paths-ignore
+      - "**.md"
+      - LICENSE
+      - schemas/**
   pull_request:
+    paths-ignore: *paths-ignore
 
 permissions:
   contents: read
@@ -11,6 +17,7 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-slim
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: pnpm/action-setup@v6.1.0
@@ -30,6 +37,7 @@ jobs:
   e2e:
     # Xcode 27 is required (xcresulttool schema 0.5.0), and only the xcode-27 runner (arm64) has it.
     runs-on: xcode-27
+    timeout-minutes: 5
     env:
       DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
