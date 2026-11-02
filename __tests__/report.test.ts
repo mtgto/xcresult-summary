@@ -2,8 +2,15 @@ import { describe, expect, test } from "vitest";
 import { collectAnnotations } from "../src/annotations.ts";
 import { toWorkspacePath } from "../src/paths.ts";
 import { renderReport } from "../src/render.ts";
-import { buildReport, hasErrors, lineCoverage, parseSourceURL } from "../src/report.ts";
-import type { TestNode } from "../src/types.ts";
+import {
+  buildReport,
+  hasErrors,
+  lineCoverage,
+  mergeTests,
+  parseSourceURL,
+  walkTestCases,
+} from "../src/report.ts";
+import type { Device, TestNode } from "../src/types.ts";
 import { fixtures, WORKSPACE } from "./fixtures.ts";
 
 const relative = (file: string) => toWorkspacePath(file, WORKSPACE);
@@ -27,6 +34,31 @@ const configuration = (name: string, message: string): TestNode => ({
       nodeType: "Unit test bundle",
       name: "AppTests",
       children: [{ nodeType: "Test Suite", name: "Suite", children: [failing(message)] }],
+    },
+  ],
+});
+
+const device = (deviceId: string): Device => ({
+  deviceId,
+  deviceName: "My Mac",
+  architecture: "arm64",
+  modelName: "Mac mini",
+  osVersion: "27.2",
+});
+const testPlan = (name: string, testCase: string): TestNode => ({
+  nodeType: "Test Plan",
+  name,
+  children: [
+    {
+      nodeType: "Unit test bundle",
+      name: `${name}Tests`,
+      children: [
+        {
+          nodeType: "Test Suite",
+          name: "Suite",
+          children: [{ nodeType: "Test Case", name: testCase, result: "Passed" }],
+        },
+      ],
     },
   ],
 });
@@ -253,5 +285,26 @@ describe("renderReport", () => {
     expect(
       Buffer.byteLength(renderReport(report, { ...options, maxBytes: 500 })),
     ).toBeLessThanOrEqual(500);
+  });
+});
+
+describe("mergeTests", () => {
+  test("keeps the test plans of every bundle", () => {
+    const merged = mergeTests([
+      { devices: [device("mac")], testNodes: [testPlan("App", "testA()")] },
+      { devices: [device("mac")], testNodes: [testPlan("Client", "testB()")] },
+    ]);
+    expect([...walkTestCases(merged.testNodes)].map((e) => e.bundle?.name)).toEqual([
+      "AppTests",
+      "ClientTests",
+    ]);
+  });
+
+  test("lists each device once", () => {
+    const merged = mergeTests([
+      { devices: [device("mac")], testNodes: [] },
+      { devices: [device("mac"), device("other")], testNodes: [] },
+    ]);
+    expect(merged.devices.map((d) => d.deviceId)).toEqual(["mac", "other"]);
   });
 });

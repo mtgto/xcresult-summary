@@ -5,7 +5,8 @@ import * as core from "@actions/core";
 import { collectAnnotations, MAX_ANNOTATIONS_PER_LEVEL } from "./annotations.ts";
 import { toWorkspacePath } from "./paths.ts";
 import { renderReport } from "./render.ts";
-import { buildReport, hasErrors, lineCoverage } from "./report.ts";
+import { buildReport, hasErrors, lineCoverage, mergeTests } from "./report.ts";
+import type { Tests } from "./types.ts";
 import {
   getBuildResults,
   getContentAvailability,
@@ -50,7 +51,7 @@ async function run(): Promise<void> {
   // and concurrent runs fail with "couldn't be moved ... because an item with the same name
   // already exists".
   const summary = availability.hasTestResults ? await getTestSummary(bundle) : undefined;
-  const tests = availability.hasTestResults ? await getTests(bundle) : undefined;
+  const tests = availability.hasTestResults ? await readTests(paths, bundle) : undefined;
   const build = await getBuildResults(bundle);
   const coverage =
     showCodeCoverage && availability.hasCoverage ? await getCoverage(bundle) : undefined;
@@ -89,6 +90,18 @@ async function run(): Promise<void> {
   if (failOnError && hasErrors(report)) {
     core.setFailed(`${title}: build errors or test failures were found`);
   }
+}
+
+// `get test-results tests` of a merged bundle drops the test plans of all but the first bundle,
+// so read the tests of each bundle instead. The summary, build results and coverage of a merged
+// bundle include every bundle.
+async function readTests(paths: string[], merged: string): Promise<Tests> {
+  if (paths.length === 1) return getTests(merged);
+  const tests: Tests[] = [];
+  for (const path of paths) {
+    if ((await getContentAvailability(path)).hasTestResults) tests.push(await getTests(path));
+  }
+  return mergeTests(tests);
 }
 
 run().catch((error: unknown) => {
