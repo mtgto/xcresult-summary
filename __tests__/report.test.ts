@@ -88,18 +88,37 @@ describe("buildReport", () => {
     ]);
   });
 
-  test("falls back to the summary when the test tree is unavailable", () => {
-    const { failures } = buildReport({ summary: fixtures.summary });
-    expect(failures.map((f) => [f.name, f.messages[0]?.text])).toEqual([
-      [
-        "CalculatorSwiftTests/divideByZeroFails()",
-        "Expectation failed: Calculator().divide(1, 0) == 0\nCalculator().divide(1, 0) → nil: // intentionally failing",
-      ],
-      [
-        "CalculatorXCTests/testSubtractFails()",
-        'XCTAssertEqual failed: ("2") is not equal to ("3") - 5 - 3 should be 2',
-      ],
+  test("takes the failure reason from the summary when the test tree has no failure message", () => {
+    const withoutMessages = (nodes: TestNode[]): TestNode[] =>
+      nodes
+        .filter((node) => node.nodeType !== "Failure Message")
+        .map((node) => ({ ...node, children: node.children && withoutMessages(node.children) }));
+    const { failures } = buildReport({
+      summary: fixtures.summary,
+      tests: { ...fixtures.tests, testNodes: withoutMessages(fixtures.tests.testNodes) },
+    });
+    expect(failures).toEqual([
+      {
+        name: "CalculatorXCTests/testSubtractFails()",
+        target: "SampleAppTests",
+        messages: [
+          { text: 'XCTAssertEqual failed: ("2") is not equal to ("3") - 5 - 3 should be 2' },
+        ],
+      },
+      {
+        name: "CalculatorSwiftTests/divideByZeroFails()",
+        target: "SampleAppTests",
+        messages: [
+          {
+            text: "Expectation failed: Calculator().divide(1, 0) == 0\nCalculator().divide(1, 0) → nil: // intentionally failing",
+          },
+        ],
+      },
     ]);
+  });
+
+  test("ignores failures that are only in the summary", () => {
+    expect(buildReport({ summary: fixtures.summary }).failures).toEqual([]);
   });
 
   test("converts build issue source URLs to 1-based lines", () => {

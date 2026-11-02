@@ -1,5 +1,7 @@
-// Subset of the JSON emitted by `xcrun xcresulttool get ...` (schema 0.x, Xcode 16+)
-// and `xcrun xccov view --report --json`.
+// Subset of the JSON this action reads (only the fields it uses).
+// - `xcrun xcresulttool get ...`: written from the JSON Schema printed by `--schema`
+//   (schema version 0.5.0, Xcode 27).
+// - `xcrun xccov view --report --json`: has no schema; written from its actual output.
 
 /** `xcresulttool get content-availability` */
 export interface ContentAvailability {
@@ -12,7 +14,7 @@ export interface ContentAvailability {
 export type TestResult = "Passed" | "Failed" | "Skipped" | "Expected Failure" | "unknown";
 
 export interface Device {
-  deviceId?: string;
+  deviceId: string;
   deviceName: string;
   architecture: string;
   modelName: string;
@@ -57,7 +59,7 @@ export interface TestSummary {
     testIdentifierString: string;
     testIdentifierURL?: string;
   }[];
-  runtimeWarnings?: Issue[];
+  runtimeWarnings: Issue[];
 }
 
 export type TestNodeType =
@@ -125,7 +127,7 @@ export interface CoverageFile {
 
 export interface CoverageTarget {
   name: string;
-  buildProductPath?: string;
+  buildProductPath: string;
   coveredLines: number;
   executableLines: number;
   lineCoverage: number;

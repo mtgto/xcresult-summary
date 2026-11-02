@@ -5,7 +5,7 @@ A GitHub Action that reports build results, test results and code coverage from 
 It was made as a lightweight successor of [kishikawakatsumi/xcresulttool](https://github.com/kishikawakatsumi/xcresulttool).
 Failure reasons are read from the result bundle, so they are reported even when `xcodebuild` doesn't print them (e.g. parallel testing piped through `xcbeautify`).
 
-- macOS runners only. Uses `xcrun xcresulttool get test-results` / `build-results` (Xcode 16 or later) and `xcrun xccov`.
+- macOS runners only. Uses `xcrun xcresulttool get content-availability` / `test-results` / `build-results` (Xcode 16 or later) and `xcrun xccov`.
 - Tested only with Xcode 27. Please report an issue if it does not work with other versions.
 - No token or extra permissions are required; works for pull requests from forks
 

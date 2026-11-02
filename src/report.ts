@@ -75,19 +75,10 @@ function collectFailures(summary?: TestSummary, tests?: Tests): TestFailure[] {
     }
   }
 
-  // Failures that only appear in the summary (or when the test tree is unavailable).
+  // Without a failure message the reason would be lost, so take it from the summary.
   for (const failure of summary?.testFailures ?? []) {
-    const name = failure.testIdentifierString || failure.testName;
-    const existing = failures.get(name);
-    if (!existing) {
-      failures.set(name, {
-        name,
-        target: failure.targetName,
-        messages: [{ text: failure.failureText }],
-      });
-    } else if (existing.messages.length === 0) {
-      existing.messages.push({ text: failure.failureText });
-    }
+    const existing = failures.get(failure.testIdentifierString);
+    if (existing?.messages.length === 0) existing.messages.push({ text: failure.failureText });
   }
   return [...failures.values()];
 }
@@ -217,9 +208,6 @@ export function lineCoverage(coverage: CoverageReport): number | undefined {
 /** Coverage targets excluding test bundles (their product path is inside `*.xctest`). */
 export function coverageTargets(coverage: CoverageReport) {
   return coverage.targets.filter(
-    (t) =>
-      t.executableLines > 0 &&
-      !t.name.endsWith(".xctest") &&
-      !(t.buildProductPath ?? "").includes(".xctest/"),
+    (t) => t.executableLines > 0 && !t.buildProductPath.includes(".xctest/"),
   );
 }

@@ -40,7 +40,7 @@ async function run(): Promise<void> {
     await mergeBundles(paths, bundle);
   }
 
-  // Ask what the bundle contains instead of treating failed commands as "not available":
+  // The results themselves can't tell whether the bundle has tests:
   // for a build-only bundle `get test-results summary` succeeds with zero tests.
   const availability = await getContentAvailability(bundle);
   if (showCodeCoverage && !availability.hasCoverage) {
