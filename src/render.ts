@@ -125,10 +125,15 @@ function renderSummary(report: Report): string {
   }
   if (build) {
     return html((s) =>
-      s.addRaw(
-        `<p>${text(build.actionTitle ?? "Build")}: <strong>${text(build.status ?? "unknown")}</strong> on ${text(formatDevice(build.destination))} (${formatDuration(build.endTime - build.startTime)})</p>`,
-        true,
-      ),
+      s.addTable([
+        headerRow(["Action", "Status", "Destination", "⏱️ Duration"]),
+        [
+          text(build.actionTitle ?? "Build"),
+          text(build.status ?? "unknown"),
+          text(formatDevice(build.destination)),
+          formatDuration(build.endTime - build.startTime),
+        ],
+      ]),
     );
   }
   return "";
@@ -139,15 +144,16 @@ function renderBuildIssues(report: Report, displayPath: (file: string) => string
   const errors = report.buildIssues.filter((i) => i.severity === "error").length;
   const warnings = report.buildIssues.length - errors;
   return html((s) =>
-    s.addHeading(`Build: ${plural(errors, "error")}, ${plural(warnings, "warning")}`, 3).addList(
-      report.buildIssues.map((issue) => {
-        const icon = issue.severity === "error" ? "❌" : "⚠️";
-        const location = issue.location
-          ? ` <code>${text(formatLocation(issue.location, displayPath))}</code>`
-          : "";
-        return `${icon}${location} ${text(issue.message)}`;
-      }),
-    ),
+    s
+      .addHeading(`Build: ${plural(errors, "error")}, ${plural(warnings, "warning")}`, 3)
+      .addTable([
+        headerRow(["Severity", "Location", "Message"]),
+        ...report.buildIssues.map((issue) => [
+          issue.severity === "error" ? "❌" : "⚠️",
+          issue.location ? text(formatLocation(issue.location, displayPath)) : "-",
+          text(issue.message),
+        ]),
+      ]),
   );
 }
 
@@ -158,19 +164,17 @@ function renderFailures(report: Report, displayPath: (file: string) => string): 
     for (const failure of report.failures) {
       const target = failure.target ? ` (${text(failure.target)})` : "";
       s.addHeading(`${text(failure.name)}${target}`, 4);
-      if (failure.messages.length === 0) {
-        s.addRaw("<p><em>No failure message was recorded.</em></p>", true);
-      }
+      if (failure.messages.length === 0) s.addQuote("No failure message was recorded.");
       for (const message of failure.messages) {
-        if (message.location) {
-          s.addRaw(
-            `<p><code>${text(formatLocation(message.location, displayPath))}</code></p>`,
-            true,
-          );
-        }
+        // Like xcodebuild's output: the location on the first line, then the message.
+        const location = message.location
+          ? `${formatLocation(message.location, displayPath)}\n`
+          : "";
         // Blank lines around <pre> keep it a separate HTML block in GitHub's Markdown, so that
         // blank lines inside the message don't end the surrounding block.
-        s.addEOL().addCodeBlock(escapeHTML(message.text)).addEOL();
+        s.addEOL()
+          .addCodeBlock(escapeHTML(location + message.text))
+          .addEOL();
       }
     }
   });

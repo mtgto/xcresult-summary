@@ -2,9 +2,9 @@
 
 exports[`renderReport > renders a build-only bundle 1`] = `
 "<h2>✅ Xcode Results</h2>
-<p>Testing workspace SampleApp with scheme SampleApp: <strong>succeeded</strong> on My Mac (Mac mini, macOS 27.2, arm64) (14.6s)</p>
+<table><tr><th>Action</th><th>Status</th><th>Destination</th><th>⏱️ Duration</th></tr><tr><td>Testing workspace SampleApp with scheme SampleApp</td><td>succeeded</td><td>My Mac (Mac mini, macOS 27.2, arm64)</td><td>14.6s</td></tr></table>
 <h3>Build: 0 errors, 1 warning</h3>
-<ul><li>⚠️ <code>fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9</code> Initialization of immutable value 'unused' was never used; consider replacing with assignment to '_' or removing it</li></ul>
+<table><tr><th>Severity</th><th>Location</th><th>Message</th></tr><tr><td>⚠️</td><td>fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9</td><td>Initialization of immutable value 'unused' was never used; consider replacing with assignment to '_' or removing it</td></tr></table>
 "
 `;
 
@@ -13,17 +13,17 @@ exports[`renderReport > renders the full report 1`] = `
 <table><tr><th>Total</th><th>✅ Passed</th><th>❌ Failed</th><th>⏭️ Skipped</th><th>⚠️ Expected Failure</th><th>⏱️ Duration</th></tr><tr><td>6</td><td>3</td><td>2</td><td>1</td><td>0</td><td>14.6s</td></tr></table>
 <ul><li>My Mac (Mac mini, macOS 27.2, arm64) — Test Scheme Action</li></ul>
 <h3>Build: 0 errors, 1 warning</h3>
-<ul><li>⚠️ <code>fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9</code> Initialization of immutable value 'unused' was never used; consider replacing with assignment to '_' or removing it</li></ul>
+<table><tr><th>Severity</th><th>Location</th><th>Message</th></tr><tr><td>⚠️</td><td>fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9</td><td>Initialization of immutable value 'unused' was never used; consider replacing with assignment to '_' or removing it</td></tr></table>
 <h3>❌ Failures (2)</h3>
 <h4>CalculatorXCTests/testSubtractFails() (SampleAppTests)</h4>
-<p><code>fixtures/SampleApp/Tests/SampleAppTests/CalculatorXCTests.swift:12</code></p>
 
-<pre><code>XCTAssertEqual failed: ("2") is not equal to ("3") - 5 - 3 should be 2</code></pre>
+<pre><code>fixtures/SampleApp/Tests/SampleAppTests/CalculatorXCTests.swift:12
+XCTAssertEqual failed: ("2") is not equal to ("3") - 5 - 3 should be 2</code></pre>
 
 <h4>CalculatorSwiftTests/divideByZeroFails() (SampleAppTests)</h4>
-<p><code>fixtures/SampleApp/Tests/SampleAppTests/CalculatorSwiftTests.swift:12</code></p>
 
-<pre><code>Expectation failed: Calculator().divide(1, 0) == 0
+<pre><code>fixtures/SampleApp/Tests/SampleAppTests/CalculatorSwiftTests.swift:12
+Expectation failed: Calculator().divide(1, 0) == 0
 Calculator().divide(1, 0) → nil: // intentionally failing</code></pre>
 
 <h3>All tests</h3>

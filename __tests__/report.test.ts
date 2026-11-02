@@ -226,6 +226,15 @@ describe("renderReport", () => {
     expect(html).toContain("\n\n<pre><code>expected &lt;a&gt;\n\n&amp; got `b`</code></pre>\n\n");
   });
 
+  // core.summary renders an empty string as an unclosed tag such as "<td>".
+  test("does not leave table cells empty for build issues without a location", () => {
+    const report = buildReport({});
+    report.buildIssues = [{ severity: "error", message: "linker failed" }];
+    expect(renderReport(report, options)).toContain(
+      "<tr><td>❌</td><td>-</td><td>linker failed</td></tr>",
+    );
+  });
+
   test("does not claim to omit the test list when it is disabled", () => {
     const report = buildReport(fixtures);
     const withoutTests = { ...options, showPassedTests: false };
