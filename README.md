@@ -54,6 +54,8 @@ pnpm build   # dist/index.mjs must be committed
 
 `pnpm install` also sets up Git hooks with [lefthook](https://github.com/evilmartians/lefthook): the pre-commit hook formats and lints staged files, and rebuilds `dist/index.mjs` when the sources change.
 
+Workflow dependencies are pinned in `.github/workflows/actions.lock` with [gh-actions-lock](https://github.com/github/gh-actions-lock) (`gh extension install github/gh-actions-lock`). After adding or changing `uses:` in a workflow, run `gh actions-lock` to update the lockfile; don't edit it by hand. The pre-commit hook runs `gh actions-lock --verify-local` (offline) when files in `.github/workflows/` change.
+
 `fixtures/json/` is generated from `fixtures/SampleApp` by `scripts/generate-fixtures.sh` (requires Xcode).
 
 `schemas/xcode-<version>/` keeps the JSON Schemas of the xcresulttool commands this action reads, saved by `scripts/dump-schemas.sh`. Run it with a new Xcode and diff the directories to see schema changes.

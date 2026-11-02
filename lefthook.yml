@@ -18,3 +18,7 @@ pre-commit:
         - "package.json"
         - "pnpm-lock.yaml"
       run: pnpm build && git add dist/index.mjs
+    # Offline check that every `uses:` has a lockfile entry (needs the gh-actions-lock extension).
+    - name: actions-lock
+      glob: ".github/workflows/**"
+      run: gh actions-lock --verify-local
