@@ -16587,6 +16587,19 @@ function collectFailures(summary, tests) {
 	}
 	return [...failures.values()];
 }
+/**
+* Combines `get test-results tests` of several bundles.
+* `get test-results tests` of a merged bundle keeps only the test plan of the first bundle
+* (Xcode 27.0 - 27.2), so the tests of each bundle are read separately and combined here.
+*/
+function mergeTests(tests) {
+	const devices = /* @__PURE__ */ new Map();
+	for (const device of tests.flatMap((t) => t.devices)) if (!devices.has(device.deviceId)) devices.set(device.deviceId, device);
+	return {
+		devices: [...devices.values()],
+		testNodes: tests.flatMap((t) => t.testNodes)
+	};
+}
 function* walkTestCases(nodes, bundle, suites = []) {
 	for (const node of nodes) switch (node.nodeType) {
 		case "Test Case":
@@ -16957,7 +16970,7 @@ async function run() {
 	const availability = await getContentAvailability(bundle);
 	if (showCodeCoverage && !availability.hasCoverage) info("Code coverage is not available in the result bundle");
 	const summary$1 = availability.hasTestResults ? await getTestSummary(bundle) : void 0;
-	const tests = availability.hasTestResults ? await getTests(bundle) : void 0;
+	const tests = availability.hasTestResults ? await readTests(paths, bundle) : void 0;
 	const build = await getBuildResults(bundle);
 	const coverage = showCodeCoverage && availability.hasCoverage ? await getCoverage(bundle) : void 0;
 	const report = buildReport({
@@ -16984,6 +16997,12 @@ async function run() {
 	const coveragePercent = coverage ? lineCoverage(coverage) : void 0;
 	setOutput("line-coverage", coveragePercent !== void 0 ? coveragePercent.toFixed(2) : "");
 	if (failOnError && hasErrors(report)) setFailed(`${title}: build errors or test failures were found`);
+}
+async function readTests(paths, merged) {
+	if (paths.length === 1) return getTests(merged);
+	const tests = [];
+	for (const path of paths) if ((await getContentAvailability(path)).hasTestResults) tests.push(await getTests(path));
+	return mergeTests(tests);
 }
 run().catch((error) => {
 	setFailed(error instanceof Error ? error.message : String(error));

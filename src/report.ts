@@ -2,6 +2,7 @@ import { fileURLToPath } from "node:url";
 import type {
   BuildResults,
   CoverageReport,
+  Device,
   Issue,
   TestNode,
   TestResult,
@@ -81,6 +82,19 @@ function collectFailures(summary?: TestSummary, tests?: Tests): TestFailure[] {
     if (existing?.messages.length === 0) existing.messages.push({ text: failure.failureText });
   }
   return [...failures.values()];
+}
+
+/**
+ * Combines `get test-results tests` of several bundles.
+ * `get test-results tests` of a merged bundle keeps only the test plan of the first bundle
+ * (Xcode 27.0 - 27.2), so the tests of each bundle are read separately and combined here.
+ */
+export function mergeTests(tests: Tests[]): Tests {
+  const devices = new Map<string, Device>();
+  for (const device of tests.flatMap((t) => t.devices)) {
+    if (!devices.has(device.deviceId)) devices.set(device.deviceId, device);
+  }
+  return { devices: [...devices.values()], testNodes: tests.flatMap((t) => t.testNodes) };
 }
 
 export interface TestCaseEntry {
