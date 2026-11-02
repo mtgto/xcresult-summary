@@ -8,11 +8,11 @@ import { renderReport } from "./render.ts";
 import { buildReport, hasErrors, lineCoverage } from "./report.ts";
 import {
   getBuildResults,
+  getContentAvailability,
   getCoverage,
   getTests,
   getTestSummary,
   mergeBundles,
-  optional,
 } from "./xcresult.ts";
 
 async function run(): Promise<void> {
@@ -40,15 +40,18 @@ async function run(): Promise<void> {
     await mergeBundles(paths, bundle);
   }
 
-  const [summary, tests, build, coverage] = await Promise.all([
-    optional("test summary", getTestSummary(bundle)),
-    optional("test tree", getTests(bundle)),
-    optional("build results", getBuildResults(bundle)),
-    showCodeCoverage ? optional("code coverage", getCoverage(bundle)) : undefined,
-  ]);
-  if (!summary && !tests && !build) {
-    throw new Error(`No build or test results could be read from ${bundle}`);
+  // Ask what the bundle contains instead of treating failed commands as "not available":
+  // for a build-only bundle `get test-results summary` succeeds with zero tests.
+  const availability = await getContentAvailability(bundle);
+  if (showCodeCoverage && !availability.hasCoverage) {
+    core.info("Code coverage is not available in the result bundle");
   }
+  const [summary, tests, build, coverage] = await Promise.all([
+    availability.hasTestResults ? getTestSummary(bundle) : undefined,
+    availability.hasTestResults ? getTests(bundle) : undefined,
+    getBuildResults(bundle),
+    showCodeCoverage && availability.hasCoverage ? getCoverage(bundle) : undefined,
+  ]);
   const report = buildReport({ summary, tests, build, coverage });
 
   const relative = (file: string) => toWorkspacePath(file, workspace);

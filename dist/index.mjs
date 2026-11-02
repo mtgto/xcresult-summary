@@ -20059,6 +20059,9 @@ async function xcrunJSON(args) {
 async function mergeBundles(paths, outputPath) {
   await xcrun(["xcresulttool", "merge", ...paths, "--output-path", outputPath]);
 }
+function getContentAvailability(path) {
+  return xcrunJSON(["xcresulttool", "get", "content-availability", "--path", path, "--compact"]);
+}
 function getTestSummary(path) {
   return xcrunJSON(["xcresulttool", "get", "test-results", "summary", "--path", path, "--compact"]);
 }
@@ -20070,15 +20073,6 @@ function getBuildResults(path) {
 }
 function getCoverage(path) {
   return xcrunJSON(["xccov", "view", "--report", "--json", path]);
-}
-async function optional(label, promise) {
-  try {
-    return await promise;
-  } catch (error2) {
-    const detail = error2 instanceof Error ? error2.message : String(error2);
-    info(`[xcresult-summary] Skipped ${label}: ${detail.trim()}`);
-    return void 0;
-  }
 }
 
 // src/main.ts
@@ -20104,15 +20098,16 @@ async function run() {
     info(`Merging ${paths.length} result bundles into ${bundle}`);
     await mergeBundles(paths, bundle);
   }
-  const [summary2, tests, build, coverage] = await Promise.all([
-    optional("test summary", getTestSummary(bundle)),
-    optional("test tree", getTests(bundle)),
-    optional("build results", getBuildResults(bundle)),
-    showCodeCoverage ? optional("code coverage", getCoverage(bundle)) : void 0
-  ]);
-  if (!summary2 && !tests && !build) {
-    throw new Error(`No build or test results could be read from ${bundle}`);
+  const availability = await getContentAvailability(bundle);
+  if (showCodeCoverage && !availability.hasCoverage) {
+    info("Code coverage is not available in the result bundle");
   }
+  const [summary2, tests, build, coverage] = await Promise.all([
+    availability.hasTestResults ? getTestSummary(bundle) : void 0,
+    availability.hasTestResults ? getTests(bundle) : void 0,
+    getBuildResults(bundle),
+    showCodeCoverage && availability.hasCoverage ? getCoverage(bundle) : void 0
+  ]);
   const report = buildReport({ summary: summary2, tests, build, coverage });
   const relative = (file) => toWorkspacePath(file, workspace);
   await summary.addRaw(

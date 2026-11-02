@@ -1,6 +1,14 @@
 // Subset of the JSON emitted by `xcrun xcresulttool get ...` (schema 0.x, Xcode 16+)
 // and `xcrun xccov view --report --json`.
 
+/** `xcresulttool get content-availability` */
+export interface ContentAvailability {
+  hasCoverage: boolean;
+  hasDiagnostics: boolean;
+  hasTestResults: boolean;
+  logs: string[];
+}
+
 export type TestResult = "Passed" | "Failed" | "Skipped" | "Expected Failure" | "unknown";
 
 export interface Device {

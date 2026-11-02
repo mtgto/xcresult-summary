@@ -1,7 +1,12 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { info } from "@actions/core";
-import type { BuildResults, CoverageReport, Tests, TestSummary } from "./types.ts";
+import type {
+  BuildResults,
+  ContentAvailability,
+  CoverageReport,
+  Tests,
+  TestSummary,
+} from "./types.ts";
 
 const execFileAsync = promisify(execFile);
 
@@ -21,6 +26,10 @@ export async function mergeBundles(paths: string[], outputPath: string): Promise
   await xcrun(["xcresulttool", "merge", ...paths, "--output-path", outputPath]);
 }
 
+export function getContentAvailability(path: string): Promise<ContentAvailability> {
+  return xcrunJSON(["xcresulttool", "get", "content-availability", "--path", path, "--compact"]);
+}
+
 export function getTestSummary(path: string): Promise<TestSummary> {
   return xcrunJSON(["xcresulttool", "get", "test-results", "summary", "--path", path, "--compact"]);
 }
@@ -35,18 +44,4 @@ export function getBuildResults(path: string): Promise<BuildResults> {
 
 export function getCoverage(path: string): Promise<CoverageReport> {
   return xcrunJSON(["xccov", "view", "--report", "--json", path]);
-}
-
-/**
- * Resolves to undefined instead of rejecting, because a bundle may lack some contents
- * (e.g. a build-only bundle has no tests, or coverage is disabled). The error is logged.
- */
-export async function optional<T>(label: string, promise: Promise<T>): Promise<T | undefined> {
-  try {
-    return await promise;
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    info(`[xcresult-summary] Skipped ${label}: ${detail.trim()}`);
-    return undefined;
-  }
 }
