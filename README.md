@@ -5,8 +5,8 @@ A GitHub Action that reports build results, test results and code coverage from 
 It was made as a lightweight successor of [kishikawakatsumi/xcresulttool](https://github.com/kishikawakatsumi/xcresulttool).
 Failure reasons are read from the result bundle, so they are reported even when `xcodebuild` doesn't print them (e.g. parallel testing piped through `xcbeautify`).
 
-- macOS runners only. Uses `xcrun xcresulttool get content-availability` / `test-results` / `build-results` (Xcode 16 or later) and `xcrun xccov`.
-- Tested locally only with Xcode 27.2. CI also runs it with Xcode 26.6 and 16.0 (on an Intel runner) to check that it works, but these versions are not supported. Please report an issue if it does not work.
+- macOS runners only. Uses `xcrun xcresulttool get content-availability` / `test-results` / `build-results` and `xcrun xccov`.
+- Requires Xcode 27 or later (xcresulttool schema version 0.5.0). Xcode 26 and earlier fail with "Unknown schema version". Tested with Xcode 27.2 on Apple Silicon; not tested on Intel Macs. Please report an issue if it does not work.
 - No token or extra permissions are required; works for pull requests from forks
 
 ## Usage
