@@ -1,5 +1,11 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
   "printWidth": 100,
-  "ignorePatterns": ["dist/**", "fixtures/**", "schemas/**", "__tests__/__snapshots__/**", "pnpm-lock.yaml"]
+  "ignorePatterns": [
+    "dist/**",
+    "fixtures/**",
+    "schemas/**",
+    "__tests__/__snapshots__/**",
+    "pnpm-lock.yaml"
+  ]
 }

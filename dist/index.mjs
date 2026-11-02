@@ -20050,17 +20050,30 @@ async function xcrunJSON(args) {
 async function mergeBundles(paths, outputPath) {
   await xcrun(["xcresulttool", "merge", ...paths, "--output-path", outputPath]);
 }
+var SCHEMA_VERSION = "0.5.0";
+function xcresulttoolGet(subcommand, path) {
+  return xcrunJSON([
+    "xcresulttool",
+    "get",
+    ...subcommand,
+    "--path",
+    path,
+    "--schema-version",
+    SCHEMA_VERSION,
+    "--compact"
+  ]);
+}
 function getContentAvailability(path) {
-  return xcrunJSON(["xcresulttool", "get", "content-availability", "--path", path, "--compact"]);
+  return xcresulttoolGet(["content-availability"], path);
 }
 function getTestSummary(path) {
-  return xcrunJSON(["xcresulttool", "get", "test-results", "summary", "--path", path, "--compact"]);
+  return xcresulttoolGet(["test-results", "summary"], path);
 }
 function getTests(path) {
-  return xcrunJSON(["xcresulttool", "get", "test-results", "tests", "--path", path, "--compact"]);
+  return xcresulttoolGet(["test-results", "tests"], path);
 }
 function getBuildResults(path) {
-  return xcrunJSON(["xcresulttool", "get", "build-results", "--path", path, "--compact"]);
+  return xcresulttoolGet(["build-results"], path);
 }
 function getCoverage(path) {
   return xcrunJSON(["xccov", "view", "--report", "--json", path]);

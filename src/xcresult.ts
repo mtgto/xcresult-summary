@@ -26,20 +26,38 @@ export async function mergeBundles(paths: string[], outputPath: string): Promise
   await xcrun(["xcresulttool", "merge", ...paths, "--output-path", outputPath]);
 }
 
+// Pin the output format to the schema the types in types.ts are written for.
+// 0.5.0 is the default schema version of xcresulttool in Xcode 27.2. Newer Xcode versions keep
+// emitting this format as long as they support it, and fail with "Unknown schema version" otherwise.
+const SCHEMA_VERSION = "0.5.0";
+
+function xcresulttoolGet<T>(subcommand: string[], path: string): Promise<T> {
+  return xcrunJSON([
+    "xcresulttool",
+    "get",
+    ...subcommand,
+    "--path",
+    path,
+    "--schema-version",
+    SCHEMA_VERSION,
+    "--compact",
+  ]);
+}
+
 export function getContentAvailability(path: string): Promise<ContentAvailability> {
-  return xcrunJSON(["xcresulttool", "get", "content-availability", "--path", path, "--compact"]);
+  return xcresulttoolGet(["content-availability"], path);
 }
 
 export function getTestSummary(path: string): Promise<TestSummary> {
-  return xcrunJSON(["xcresulttool", "get", "test-results", "summary", "--path", path, "--compact"]);
+  return xcresulttoolGet(["test-results", "summary"], path);
 }
 
 export function getTests(path: string): Promise<Tests> {
-  return xcrunJSON(["xcresulttool", "get", "test-results", "tests", "--path", path, "--compact"]);
+  return xcresulttoolGet(["test-results", "tests"], path);
 }
 
 export function getBuildResults(path: string): Promise<BuildResults> {
-  return xcrunJSON(["xcresulttool", "get", "build-results", "--path", path, "--compact"]);
+  return xcresulttoolGet(["build-results"], path);
 }
 
 export function getCoverage(path: string): Promise<CoverageReport> {
