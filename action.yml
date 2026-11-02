@@ -33,4 +33,4 @@ outputs:
     description: Line coverage as a percentage (e.g. "83.21"), empty when coverage is unavailable
 runs:
   using: node24
-  main: dist/index.mjs
+  main: dist/index.cjs

@@ -1,3 +1,4 @@
+import { summary } from "@actions/core";
 import {
   coverageTargets,
   hasErrors,
@@ -19,14 +20,19 @@ export interface RenderOptions {
   maxBytes?: number;
 }
 
+interface Sections {
+  allTests: boolean;
+  coverageFiles: boolean;
+  note?: string;
+}
+
 const DEFAULT_MAX_BYTES = 1000 * 1000;
 
+/** Renders the report as the HTML of a job summary. */
 export function renderReport(report: Report, options: RenderOptions): string {
   const maxBytes = options.maxBytes ?? DEFAULT_MAX_BYTES;
   // Drop the least important sections first until the report fits.
-  const attempts: { allTests: boolean; coverageFiles: boolean; note?: string }[] = [
-    { allTests: options.showPassedTests, coverageFiles: true },
-  ];
+  const attempts: Sections[] = [{ allTests: options.showPassedTests, coverageFiles: true }];
   if (options.showPassedTests) {
     attempts.push({
       allTests: false,
@@ -41,162 +47,211 @@ export function renderReport(report: Report, options: RenderOptions): string {
       ? "The list of all tests and per-file coverage were omitted because the summary is too large."
       : "Per-file coverage was omitted because the summary is too large.",
   });
-  let markdown = "";
+  let rendered = "";
   for (const attempt of attempts) {
-    markdown = render(report, options, attempt);
-    if (Buffer.byteLength(markdown) <= maxBytes) return markdown;
+    rendered = render(report, options, attempt);
+    if (Buffer.byteLength(rendered) <= maxBytes) return rendered;
   }
-  const suffix = "\n\n> [!WARNING]\n> The summary was truncated because it is too large.\n";
-  return truncateBytes(markdown, maxBytes - Buffer.byteLength(suffix)) + suffix;
+  const suffix = html((s) =>
+    s.addEOL().addQuote("Warning: the summary was truncated because it is too large."),
+  );
+  return truncateBytes(rendered, maxBytes - Buffer.byteLength(suffix)) + suffix;
 }
 
-function render(
-  report: Report,
-  options: RenderOptions,
-  sections: { allTests: boolean; coverageFiles: boolean; note?: string },
-): string {
+/**
+ * Builds HTML with core.summary and returns it without keeping it in the buffer.
+ * core.summary is a single shared buffer, so this must not be nested: render inner
+ * contents (e.g. of <details>) before the outer element.
+ */
+function html(build: (s: typeof summary) => unknown): string {
+  summary.emptyBuffer();
+  build(summary);
+  const result = summary.stringify();
+  summary.emptyBuffer();
+  return result;
+}
+
+function render(report: Report, options: RenderOptions, sections: Sections): string {
   const displayPath = options.displayPath ?? ((file: string) => file);
-  const out: string[] = [];
-  out.push(`## ${hasErrors(report) ? "❌" : "✅"} ${escapeMarkdown(options.title)}`, "");
-  if (sections.note) out.push(`> [!NOTE]`, `> ${sections.note}`, "");
-
-  out.push(...renderSummary(report));
-  out.push(...renderBuildIssues(report, displayPath));
-  out.push(...renderFailures(report, displayPath));
-  if (sections.allTests) out.push(...renderAllTests(report));
-  if (options.showCodeCoverage) out.push(...renderCoverage(report, displayPath, sections));
-  return out.join("\n").trimEnd() + "\n";
+  const parts = [
+    html((s) => {
+      s.addHeading(`${hasErrors(report) ? "❌" : "✅"} ${text(options.title)}`, 2);
+      if (sections.note) s.addQuote(text(sections.note));
+    }),
+    renderSummary(report),
+    renderBuildIssues(report, displayPath),
+    renderFailures(report, displayPath),
+    sections.allTests ? renderAllTests(report) : "",
+    options.showCodeCoverage ? renderCoverage(report, displayPath, sections) : "",
+  ];
+  return parts.join("");
 }
 
-function renderSummary(report: Report): string[] {
-  const { summary, build } = report;
-  const out: string[] = [];
-  if (summary) {
+function renderSummary(report: Report): string {
+  const { summary: testSummary, build } = report;
+  if (testSummary) {
     const duration =
-      summary.startTime !== undefined && summary.finishTime !== undefined
-        ? formatDuration(summary.finishTime - summary.startTime)
+      testSummary.startTime !== undefined && testSummary.finishTime !== undefined
+        ? formatDuration(testSummary.finishTime - testSummary.startTime)
         : "-";
-    out.push(
-      "| Total | ✅ Passed | ❌ Failed | ⏭️ Skipped | ⚠️ Expected Failure | ⏱️ Duration |",
-      "| ---: | ---: | ---: | ---: | ---: | ---: |",
-      `| ${summary.totalTestCount} | ${summary.passedTests} | ${summary.failedTests} | ${summary.skippedTests} | ${summary.expectedFailures} | ${duration} |`,
-      "",
-    );
-    for (const config of summary.devicesAndConfigurations) {
-      out.push(
-        `- ${escapeMarkdown(formatDevice(config.device))} — ${escapeMarkdown(config.testPlanConfiguration.configurationName)}`,
-      );
-    }
-    if (summary.devicesAndConfigurations.length > 0) out.push("");
-  } else if (build) {
-    out.push(
-      `${escapeMarkdown(build.actionTitle ?? "Build")}: **${escapeMarkdown(build.status ?? "unknown")}** on ${escapeMarkdown(formatDevice(build.destination))} (${formatDuration(build.endTime - build.startTime)})`,
-      "",
+    return html((s) => {
+      s.addTable([
+        headerRow([
+          "Total",
+          "✅ Passed",
+          "❌ Failed",
+          "⏭️ Skipped",
+          "⚠️ Expected Failure",
+          "⏱️ Duration",
+        ]),
+        [
+          String(testSummary.totalTestCount),
+          String(testSummary.passedTests),
+          String(testSummary.failedTests),
+          String(testSummary.skippedTests),
+          String(testSummary.expectedFailures),
+          duration,
+        ],
+      ]);
+      if (testSummary.devicesAndConfigurations.length > 0) {
+        s.addList(
+          testSummary.devicesAndConfigurations.map(
+            (config) =>
+              `${text(formatDevice(config.device))} — ${text(config.testPlanConfiguration.configurationName)}`,
+          ),
+        );
+      }
+    });
+  }
+  if (build) {
+    return html((s) =>
+      s.addRaw(
+        `<p>${text(build.actionTitle ?? "Build")}: <strong>${text(build.status ?? "unknown")}</strong> on ${text(formatDevice(build.destination))} (${formatDuration(build.endTime - build.startTime)})</p>`,
+        true,
+      ),
     );
   }
-  return out;
+  return "";
 }
 
-function renderBuildIssues(report: Report, displayPath: (file: string) => string): string[] {
-  if (report.buildIssues.length === 0) return [];
+function renderBuildIssues(report: Report, displayPath: (file: string) => string): string {
+  if (report.buildIssues.length === 0) return "";
   const errors = report.buildIssues.filter((i) => i.severity === "error").length;
   const warnings = report.buildIssues.length - errors;
-  const out = [`### Build: ${plural(errors, "error")}, ${plural(warnings, "warning")}`, ""];
-  for (const issue of report.buildIssues) {
-    const icon = issue.severity === "error" ? "❌" : "⚠️";
-    const location = issue.location ? ` ${code(formatLocation(issue.location, displayPath))}` : "";
-    out.push(`- ${icon}${location} ${escapeMarkdown(issue.message)}`);
-  }
-  out.push("");
-  return out;
+  return html((s) =>
+    s.addHeading(`Build: ${plural(errors, "error")}, ${plural(warnings, "warning")}`, 3).addList(
+      report.buildIssues.map((issue) => {
+        const icon = issue.severity === "error" ? "❌" : "⚠️";
+        const location = issue.location
+          ? ` <code>${text(formatLocation(issue.location, displayPath))}</code>`
+          : "";
+        return `${icon}${location} ${text(issue.message)}`;
+      }),
+    ),
+  );
 }
 
-function renderFailures(report: Report, displayPath: (file: string) => string): string[] {
-  if (report.failures.length === 0) return [];
-  const out = [`### ❌ Failures (${report.failures.length})`, ""];
-  for (const failure of report.failures) {
-    const target = failure.target ? ` (${escapeMarkdown(failure.target)})` : "";
-    out.push(`#### ${escapeMarkdown(failure.name)}${target}`, "");
-    if (failure.messages.length === 0) out.push("_No failure message was recorded._", "");
-    for (const message of failure.messages) {
-      if (message.location) out.push(code(formatLocation(message.location, displayPath)), "");
-      out.push(...codeBlock(message.text), "");
+function renderFailures(report: Report, displayPath: (file: string) => string): string {
+  if (report.failures.length === 0) return "";
+  return html((s) => {
+    s.addHeading(`❌ Failures (${report.failures.length})`, 3);
+    for (const failure of report.failures) {
+      const target = failure.target ? ` (${text(failure.target)})` : "";
+      s.addHeading(`${text(failure.name)}${target}`, 4);
+      if (failure.messages.length === 0) {
+        s.addRaw("<p><em>No failure message was recorded.</em></p>", true);
+      }
+      for (const message of failure.messages) {
+        if (message.location) {
+          s.addRaw(
+            `<p><code>${text(formatLocation(message.location, displayPath))}</code></p>`,
+            true,
+          );
+        }
+        // Blank lines around <pre> keep it a separate HTML block in GitHub's Markdown, so that
+        // blank lines inside the message don't end the surrounding block.
+        s.addEOL().addCodeBlock(escapeHTML(message.text)).addEOL();
+      }
     }
-  }
-  return out;
+  });
 }
 
-function renderAllTests(report: Report): string[] {
+function renderAllTests(report: Report): string {
   const entries = [...walkTestCases(report.tests?.testNodes ?? [])];
-  if (entries.length === 0) return [];
-  const groups = new Map<string, typeof entries>();
-  for (const entry of entries) {
-    const key = [entry.bundle?.name, ...entry.suites.map((s) => s.name)]
-      .filter(Boolean)
-      .join(" / ");
-    groups.set(key, [...(groups.get(key) ?? []), entry]);
-  }
-  const out = ["### All tests", ""];
-  for (const [group, cases] of groups) {
+  if (entries.length === 0) return "";
+  const groups = Map.groupBy(entries, (entry) =>
+    [entry.bundle?.name, ...entry.suites.map((suite) => suite.name)].filter(Boolean).join(" / "),
+  );
+  const details = [...groups].map(([group, cases]) => {
     const failed = cases.some((c) => c.testCase.result === "Failed");
     const passed = cases.filter((c) => c.testCase.result === "Passed").length;
-    out.push(
-      "<details>",
-      `<summary>${failed ? "❌" : "✅"} ${escapeHTML(group || "Tests")} (${passed}/${cases.length} passed)</summary>`,
-      "",
+    const label = `${failed ? "❌" : "✅"} ${text(group || "Tests")} (${passed}/${cases.length} passed)`;
+    const list = html((s) =>
+      s.addList(
+        cases.map(({ testCase }) => {
+          const duration =
+            testCase.durationInSeconds !== undefined
+              ? ` (${formatDuration(testCase.durationInSeconds)})`
+              : "";
+          return `${statusIcon(testCase.result)} ${text(testCase.name)}${duration}`;
+        }),
+      ),
     );
-    for (const { testCase } of cases) {
-      const duration =
-        testCase.durationInSeconds !== undefined
-          ? ` (${formatDuration(testCase.durationInSeconds)})`
-          : "";
-      out.push(`- ${statusIcon(testCase.result)} ${escapeMarkdown(testCase.name)}${duration}`);
-    }
-    out.push("", "</details>", "");
-  }
-  return out;
+    return { label, list };
+  });
+  return html((s) => {
+    s.addHeading("All tests", 3);
+    for (const { label, list } of details) s.addDetails(label, list);
+  });
 }
 
 function renderCoverage(
   report: Report,
   displayPath: (file: string) => string,
-  sections: { coverageFiles: boolean },
-): string[] {
-  if (!report.coverage) return [];
+  sections: Sections,
+): string {
+  if (!report.coverage) return "";
   const targets = coverageTargets(report.coverage);
   const total = lineCoverage(report.coverage);
-  if (targets.length === 0 || total === undefined) return [];
-  const out = [
-    `### Code coverage: ${formatPercent(total)}`,
-    "",
-    "| Target | Coverage | Covered / Executable lines |",
-    "| --- | ---: | ---: |",
-  ];
-  for (const target of targets) {
-    out.push(
-      `| ${escapeMarkdown(target.name)} | ${formatPercent(target.lineCoverage * 100)} | ${target.coveredLines} / ${target.executableLines} |`,
-    );
-  }
-  out.push("");
-  if (sections.coverageFiles) {
-    for (const target of targets) {
-      out.push(
-        "<details>",
-        `<summary>${escapeHTML(target.name)} files</summary>`,
-        "",
-        "| File | Coverage | Covered / Executable lines |",
-        "| --- | ---: | ---: |",
-      );
-      const files = target.files.toSorted((a, b) => a.lineCoverage - b.lineCoverage);
-      for (const file of files) {
-        out.push(
-          `| ${escapeMarkdown(displayPath(file.path))} | ${formatPercent(file.lineCoverage * 100)} | ${file.coveredLines} / ${file.executableLines} |`,
-        );
-      }
-      out.push("", "</details>", "");
-    }
-  }
-  return out;
+  if (targets.length === 0 || total === undefined) return "";
+  const files = sections.coverageFiles
+    ? targets.map((target) => ({
+        label: `${text(target.name)} files`,
+        table: html((s) =>
+          s.addTable([
+            coverageHeader("File"),
+            ...target.files
+              .toSorted((a, b) => a.lineCoverage - b.lineCoverage)
+              .map((file) => [
+                text(displayPath(file.path)),
+                formatPercent(file.lineCoverage * 100),
+                `${file.coveredLines} / ${file.executableLines}`,
+              ]),
+          ]),
+        ),
+      }))
+    : [];
+  return html((s) => {
+    s.addHeading(`Code coverage: ${formatPercent(total)}`, 3).addTable([
+      coverageHeader("Target"),
+      ...targets.map((target) => [
+        text(target.name),
+        formatPercent(target.lineCoverage * 100),
+        `${target.coveredLines} / ${target.executableLines}`,
+      ]),
+    ]);
+    for (const { label, table } of files) s.addDetails(label, table);
+  });
+}
+
+type SummaryTableRow = Parameters<typeof summary.addTable>[0][number];
+
+function headerRow(cells: string[]): SummaryTableRow {
+  return cells.map((data) => ({ data, header: true }));
+}
+
+function coverageHeader(first: string): SummaryTableRow {
+  return headerRow([first, "Coverage", "Covered / Executable lines"]);
 }
 
 function formatDevice(device: Device): string {
@@ -224,34 +279,22 @@ function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? "" : "s"}`;
 }
 
-/** Inline code that survives backticks in the content. */
-function code(text: string): string {
-  const longest = Math.max(0, ...(text.match(/`+/g) ?? []).map((s) => s.length));
-  const fence = "`".repeat(longest + 1);
-  const pad = text.startsWith("`") || text.endsWith("`") ? " " : "";
-  return `${fence}${pad}${text}${pad}${fence}`;
+/** core.summary inserts strings as raw HTML, so all text from the bundle must be escaped. */
+function escapeHTML(value: string): string {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-/** Fenced code block that survives backtick runs in the content. */
-function codeBlock(text: string): string[] {
-  const longest = Math.max(0, ...(text.match(/`+/g) ?? []).map((s) => s.length));
-  const fence = "`".repeat(Math.max(3, longest + 1));
-  return [fence, text, fence];
+/**
+ * Escaped text for a single-line element. A blank line would end the HTML block in
+ * GitHub's Markdown, so line breaks are replaced with spaces.
+ */
+function text(value: string): string {
+  return escapeHTML(value).replace(/\r?\n/g, " ");
 }
 
-function escapeHTML(text: string): string {
-  return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-function escapeMarkdown(text: string): string {
-  return escapeHTML(text)
-    .replace(/([\\`*_[\]|#])/g, "\\$1")
-    .replace(/\r?\n/g, " ");
-}
-
-function truncateBytes(text: string, maxBytes: number): string {
-  const buffer = Buffer.from(text);
-  if (buffer.byteLength <= maxBytes) return text;
+function truncateBytes(value: string, maxBytes: number): string {
+  const buffer = Buffer.from(value);
+  if (buffer.byteLength <= maxBytes) return value;
   // Avoid cutting a multi-byte character in half.
   return buffer.subarray(0, maxBytes).toString().replace(/�$/, "");
 }

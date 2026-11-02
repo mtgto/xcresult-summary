@@ -218,10 +218,12 @@ describe("renderReport", () => {
     expect(renderReport(buildReport({ build: fixtures.build }), options)).toMatchSnapshot();
   });
 
-  test("keeps backticks in failure messages inside the code block", () => {
+  test("escapes HTML in failure messages and keeps their blank lines in a separate block", () => {
     const report = buildReport({});
-    report.failures = [{ name: "T", messages: [{ text: "expected ```a``` got `b`" }] }];
-    expect(renderReport(report, options)).toContain("````\nexpected ```a``` got `b`\n````");
+    report.failures = [{ name: "T<1>", messages: [{ text: "expected <a>\n\n& got `b`" }] }];
+    const html = renderReport(report, options);
+    expect(html).toContain("<h4>T&lt;1&gt;</h4>");
+    expect(html).toContain("\n\n<pre><code>expected &lt;a&gt;\n\n&amp; got `b`</code></pre>\n\n");
   });
 
   test("does not claim to omit the test list when it is disabled", () => {
@@ -237,7 +239,7 @@ describe("renderReport", () => {
     const report = buildReport(fixtures);
     const full = renderReport(report, options);
     const small = renderReport(report, { ...options, maxBytes: Buffer.byteLength(full) - 1 });
-    expect(small).not.toContain("### All tests");
+    expect(small).not.toContain("<h3>All tests</h3>");
     expect(small).toContain("CalculatorXCTests/testSubtractFails()");
     expect(
       Buffer.byteLength(renderReport(report, { ...options, maxBytes: 500 })),
