@@ -28,13 +28,32 @@ jobs:
         run: git diff --exit-code dist
 
   e2e:
+    name: e2e (Xcode ${{ matrix.xcode }}, ${{ matrix.runner }})
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-26, macos-15-intel]
-    runs-on: ${{ matrix.os }}
+        include:
+          # Supported: the version this action is developed and tested with.
+          - runner: xcode-27
+            xcode: "27.2"
+            supported: true
+          # Not supported, only checked: older Xcode versions, and Intel (no Intel runner has Xcode 27).
+          - runner: macos-26
+            xcode: "26.6"
+            supported: false
+          - runner: macos-15-intel
+            xcode: "16.0"
+            supported: false
+    runs-on: ${{ matrix.runner }}
+    continue-on-error: ${{ !matrix.supported }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcrun xcresulttool version
       - name: Run sample tests (some tests fail on purpose)
         id: test
         continue-on-error: true
@@ -51,7 +70,7 @@ jobs:
         id: report
         with:
           path: fixtures/SampleApp/build/parallel.xcresult
-          title: Sample (${{ matrix.os }})
+          title: Sample (Xcode ${{ matrix.xcode }}, ${{ matrix.runner }})
       - name: Check outputs
         env:
           TOTAL: ${{ steps.report.outputs.total-tests }}
