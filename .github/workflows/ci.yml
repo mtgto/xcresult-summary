@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm fmt:check
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
+      - name: Check dist is up to date
+        run: git diff --exit-code dist
+
+  e2e:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-26, macos-15-intel]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Run sample tests (some tests fail on purpose)
+        id: test
+        continue-on-error: true
+        working-directory: fixtures/SampleApp
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -scheme SampleApp \
+            -destination 'platform=macOS' \
+            -enableCodeCoverage YES \
+            -parallel-testing-enabled YES \
+            -resultBundlePath build/parallel.xcresult | xcbeautify
+      - uses: ./
+        id: report
+        with:
+          path: fixtures/SampleApp/build/parallel.xcresult
+          title: Sample (${{ matrix.os }})
+      - name: Check outputs
+        env:
+          TOTAL: ${{ steps.report.outputs.total-tests }}
+          FAILED: ${{ steps.report.outputs.failed-tests }}
+          COVERAGE: ${{ steps.report.outputs.line-coverage }}
+        run: |
+          echo "total=$TOTAL failed=$FAILED coverage=$COVERAGE"
+          test "$TOTAL" = 6
+          test "$FAILED" = 2
+          test -n "$COVERAGE"

@@ -1,0 +1,36 @@
+name: xcresult-summary
+description: Report build results, test results (including failure reasons) and code coverage from .xcresult bundles
+author: mtgto
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  path:
+    description: Path(s) to .xcresult bundles. Multiple paths (one per line) are merged before reporting.
+    required: true
+  title:
+    description: Title of the report in the job summary
+    default: Xcode Results
+  show-passed-tests:
+    description: Show the list of all tests (not only failures)
+    default: "true"
+  show-code-coverage:
+    description: Show code coverage
+    default: "true"
+  fail-on-error:
+    description: Fail this step when there are build errors or test failures
+    default: "false"
+outputs:
+  total-tests:
+    description: Number of tests
+  passed-tests:
+    description: Number of passed tests
+  failed-tests:
+    description: Number of failed tests
+  skipped-tests:
+    description: Number of skipped tests
+  line-coverage:
+    description: Line coverage as a percentage (e.g. "83.21"), empty when coverage is unavailable
+runs:
+  using: node24
+  main: dist/index.mjs

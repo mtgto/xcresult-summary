@@ -1,0 +1,7 @@
+node_modules/
+*.xcresult/
+fixtures/SampleApp/.build/
+fixtures/SampleApp/.swiftpm/
+fixtures/SampleApp/build/
+.DS_Store
+.pnpm-store/

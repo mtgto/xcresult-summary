@@ -1,0 +1,81 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`renderReport > renders a build-only bundle 1`] = `
+"## ✅ Xcode Results
+
+Testing workspace SampleApp with scheme SampleApp: **succeeded** on My Mac (Mac mini, macOS 27.2, arm64) (14.6s)
+
+### Build: 0 errors, 1 warning
+
+- ⚠️ \`fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9\` Initialization of immutable value 'unused' was never used; consider replacing with assignment to '\\_' or removing it
+"
+`;
+
+exports[`renderReport > renders the full report 1`] = `
+"## ❌ Xcode Results
+
+| Total | ✅ Passed | ❌ Failed | ⏭️ Skipped | ⚠️ Expected Failure | ⏱️ Duration |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 6 | 3 | 2 | 1 | 0 | 14.6s |
+
+- My Mac (Mac mini, macOS 27.2, arm64) — Test Scheme Action
+
+### Build: 0 errors, 1 warning
+
+- ⚠️ \`fixtures/SampleApp/Sources/SampleApp/Calculator.swift:9\` Initialization of immutable value 'unused' was never used; consider replacing with assignment to '\\_' or removing it
+
+### ❌ Failures (2)
+
+#### CalculatorXCTests/testSubtractFails() (SampleAppTests)
+
+\`fixtures/SampleApp/Tests/SampleAppTests/CalculatorXCTests.swift:12\`
+
+\`\`\`
+XCTAssertEqual failed: ("2") is not equal to ("3") - 5 - 3 should be 2
+\`\`\`
+
+#### CalculatorSwiftTests/divideByZeroFails() (SampleAppTests)
+
+\`fixtures/SampleApp/Tests/SampleAppTests/CalculatorSwiftTests.swift:12\`
+
+\`\`\`
+Expectation failed: Calculator().divide(1, 0) == 0
+Calculator().divide(1, 0) → nil: // intentionally failing
+\`\`\`
+
+### All tests
+
+<details>
+<summary>❌ SampleAppTests / CalculatorXCTests (1/3 passed)</summary>
+
+- ✅ testAdd() (1ms)
+- ⏭️ testSkipped() (1ms)
+- ❌ testSubtractFails() (532ms)
+
+</details>
+
+<details>
+<summary>❌ SampleAppTests / CalculatorSwiftTests (2/3 passed)</summary>
+
+- ❌ divideByZeroFails() (0ms)
+- ✅ divide() (0ms)
+- ✅ addZero(value:) (0ms)
+
+</details>
+
+### Code coverage: 82.35%
+
+| Target | Coverage | Covered / Executable lines |
+| --- | ---: | ---: |
+| SampleApp | 82.35% | 14 / 17 |
+
+<details>
+<summary>SampleApp files</summary>
+
+| File | Coverage | Covered / Executable lines |
+| --- | ---: | ---: |
+| fixtures/SampleApp/Sources/SampleApp/Calculator.swift | 82.35% | 14 / 17 |
+
+</details>
+"
+`;
