@@ -1,6 +1,6 @@
 {
   "name": "xcresult-summary",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "GitHub Action that reports build results, test results and code coverage from .xcresult bundles",
   "license": "MIT",
