@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "esbuild src/main.ts --bundle --platform=node --target=node24 --format=cjs --outfile=dist/index.cjs --legal-comments=none",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "lint": "oxlint",
@@ -18,10 +18,10 @@
   },
   "devDependencies": {
     "@types/node": "24.19.2",
-    "esbuild": "0.28.2",
     "oxfmt": "0.75.0",
     "oxlint": "1.90.0",
     "typescript": "7.0.2",
+    "vite": "8.3.5",
     "vitest": "5.0.5"
   },
   "engines": {
