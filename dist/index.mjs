@@ -16956,12 +16956,10 @@ async function run() {
 	}
 	const availability = await getContentAvailability(bundle);
 	if (showCodeCoverage && !availability.hasCoverage) info("Code coverage is not available in the result bundle");
-	const [summary$1, tests, build, coverage] = await Promise.all([
-		availability.hasTestResults ? getTestSummary(bundle) : void 0,
-		availability.hasTestResults ? getTests(bundle) : void 0,
-		getBuildResults(bundle),
-		showCodeCoverage && availability.hasCoverage ? getCoverage(bundle) : void 0
-	]);
+	const summary$1 = availability.hasTestResults ? await getTestSummary(bundle) : void 0;
+	const tests = availability.hasTestResults ? await getTests(bundle) : void 0;
+	const build = await getBuildResults(bundle);
+	const coverage = showCodeCoverage && availability.hasCoverage ? await getCoverage(bundle) : void 0;
 	const report = buildReport({
 		summary: summary$1,
 		tests,

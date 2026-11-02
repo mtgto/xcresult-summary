@@ -46,12 +46,14 @@ async function run(): Promise<void> {
   if (showCodeCoverage && !availability.hasCoverage) {
     core.info("Code coverage is not available in the result bundle");
   }
-  const [summary, tests, build, coverage] = await Promise.all([
-    availability.hasTestResults ? getTestSummary(bundle) : undefined,
-    availability.hasTestResults ? getTests(bundle) : undefined,
-    getBuildResults(bundle),
-    showCodeCoverage && availability.hasCoverage ? getCoverage(bundle) : undefined,
-  ]);
+  // Run one at a time: xcresulttool creates a cache (database.sqlite3) inside a fresh bundle,
+  // and concurrent runs fail with "couldn't be moved ... because an item with the same name
+  // already exists".
+  const summary = availability.hasTestResults ? await getTestSummary(bundle) : undefined;
+  const tests = availability.hasTestResults ? await getTests(bundle) : undefined;
+  const build = await getBuildResults(bundle);
+  const coverage =
+    showCodeCoverage && availability.hasCoverage ? await getCoverage(bundle) : undefined;
   const report = buildReport({ summary, tests, build, coverage });
 
   const relative = (file: string) => toWorkspacePath(file, workspace);
