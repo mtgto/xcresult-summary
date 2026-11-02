@@ -1,0 +1,20 @@
+# Match globs like Bash: "**" also matches zero directories.
+glob_matcher: doublestar
+
+pre-commit:
+  jobs:
+    - name: fmt
+      glob: "**/*.{ts,json,md,yml,yaml}"
+      run: pnpm exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+    - name: lint
+      glob: "**/*.ts"
+      run: pnpm exec oxlint {staged_files}
+    # dist/index.mjs is what GitHub Actions runs, so keep it in sync with the sources.
+    - name: build
+      glob:
+        - "src/**/*.ts"
+        - "vite.config.ts"
+        - "package.json"
+        - "pnpm-lock.yaml"
+      run: pnpm build && git add dist/index.mjs

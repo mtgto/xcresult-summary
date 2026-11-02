@@ -1,0 +1,3 @@
+allowBuilds:
+  # Its install script sets up the Git hooks in lefthook.yml.
+  lefthook: true
