@@ -35,17 +35,29 @@ jobs:
         run: git diff --exit-code dist
 
   e2e:
-    # Xcode 27 is required (xcresulttool schema 0.5.0), and only the xcode-27 runner (arm64) has it.
+    # Xcode 27 is required (xcresulttool schema 0.4.0), and only the xcode-27 runner (arm64) has it.
     runs-on: xcode-27
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["27.0", "27.1", "27.2"]
     env:
-      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Show Xcode version
         run: |
           xcodebuild -version
           xcrun xcresulttool version
+          # xcresulttool can't list the schema versions it accepts, so probe some candidates.
+          for v in 0.1.0 0.2.0 0.3.0 0.4.0 0.5.0 0.6.0 1.0.0; do
+            if xcrun xcresulttool get test-results summary --schema --schema-version "$v" --path /dev/null > /dev/null 2>&1; then
+              echo "schema version $v: supported"
+            else
+              echo "schema version $v: unsupported"
+            fi
+          done
       - name: Run sample tests (some tests fail on purpose)
         id: test
         continue-on-error: true

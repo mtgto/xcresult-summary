@@ -1,0 +1,30 @@
+{
+  "schemas": {
+    "ContentAvailability": {
+      "type": "object",
+      "properties": {
+        "hasCoverage": {
+          "type": "boolean"
+        },
+        "hasDiagnostics": {
+          "type": "boolean"
+        },
+        "hasTestResults": {
+          "type": "boolean"
+        },
+        "logs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "hasCoverage",
+        "hasDiagnostics",
+        "hasTestResults",
+        "logs"
+      ]
+    }
+  }
+}

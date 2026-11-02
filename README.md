@@ -6,7 +6,7 @@ It was made as a lightweight successor of [kishikawakatsumi/xcresulttool](https:
 Failure reasons are read from the result bundle, so they are reported even when `xcodebuild` doesn't print them (e.g. parallel testing piped through `xcbeautify`).
 
 - macOS runners only. Uses `xcrun xcresulttool get content-availability` / `test-results` / `build-results` and `xcrun xccov`.
-- Requires Xcode 27 or later (xcresulttool schema version 0.5.0). Xcode 26 and earlier fail with "Unknown schema version". Tested with Xcode 27.2 on Apple Silicon; not tested on Intel Macs. Please report an issue if it does not work.
+- Requires Xcode 27 or later (xcresulttool schema version 0.4.0). Xcode 26 and earlier fail with "Unknown schema version". Tested with Xcode 27.0 and 27.2 on Apple Silicon; not tested on Intel Macs. Please report an issue if it does not work.
 - No token or extra permissions are required; works for pull requests from forks
 
 ## Usage

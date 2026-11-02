@@ -27,9 +27,11 @@ export async function mergeBundles(paths: string[], outputPath: string): Promise
 }
 
 // Pin the output format to the schema the types in types.ts are written for.
-// 0.5.0 is the default schema version of xcresulttool in Xcode 27.2. Newer Xcode versions keep
-// emitting this format as long as they support it, and fail with "Unknown schema version" otherwise.
-const SCHEMA_VERSION = "0.5.0";
+// 0.4.0 is the default schema version of xcresulttool in Xcode 27.0 (Xcode 27.1 does not know
+// 0.5.0, the default in Xcode 27.2). The commands this action reads have the same JSON Schema in
+// 0.4.0 and 0.5.0. Newer Xcode versions keep emitting this format as long as they support it,
+// and fail with "Unknown schema version" otherwise.
+const SCHEMA_VERSION = "0.4.0";
 
 function xcresulttoolGet<T>(subcommand: string[], path: string): Promise<T> {
   return xcrunJSON([
