@@ -50,14 +50,6 @@ jobs:
         run: |
           xcodebuild -version
           xcrun xcresulttool version
-          # xcresulttool can't list the schema versions it accepts, so probe some candidates.
-          for v in 0.1.0 0.2.0 0.3.0 0.4.0 0.5.0 0.6.0 1.0.0; do
-            if xcrun xcresulttool get test-results summary --schema --schema-version "$v" --path /dev/null > /dev/null 2>&1; then
-              echo "schema version $v: supported"
-            else
-              echo "schema version $v: unsupported"
-            fi
-          done
       - name: Run sample tests (some tests fail on purpose)
         id: test
         continue-on-error: true
