@@ -176,9 +176,9 @@ export function parseSourceURL(sourceURL: string): SourceLocation | undefined {
 export function statusIcon(result?: TestResult): string {
   switch (result) {
     case "Passed":
-      return "✅";
+      return "🟢";
     case "Failed":
-      return "❌";
+      return "🔴";
     case "Skipped":
       return "⏭️";
     case "Expected Failure":

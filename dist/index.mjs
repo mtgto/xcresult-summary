@@ -16656,8 +16656,8 @@ function parseSourceURL(sourceURL) {
 }
 function statusIcon(result) {
 	switch (result) {
-		case "Passed": return "✅";
-		case "Failed": return "❌";
+		case "Passed": return "🟢";
+		case "Failed": return "🔴";
 		case "Skipped": return "⏭️";
 		case "Expected Failure": return "⚠️";
 		default: return "❔";
@@ -16720,7 +16720,7 @@ function render(report, options, sections) {
 	const displayPath = options.displayPath ?? ((file) => file);
 	return [
 		html((s) => {
-			s.addHeading(`${hasErrors(report) ? "❌" : "✅"} ${text(options.title)}`, 2);
+			s.addHeading(`${hasErrors(report) ? "🔴" : "🟢"} ${text(options.title)}`, 2);
 			if (sections.note) s.addQuote(text(sections.note));
 		}),
 		renderSummary(report),
@@ -16737,8 +16737,8 @@ function renderSummary(report) {
 		return html((s) => {
 			s.addTable([headerRow([
 				"Total",
-				"✅ Passed",
-				"❌ Failed",
+				"🟢 Passed",
+				"🔴 Failed",
 				"⏭️ Skipped",
 				"⚠️ Expected Failure",
 				"⏱️ Duration"
@@ -16775,7 +16775,7 @@ function renderBuildIssues(report, displayPath) {
 		"Location",
 		"Message"
 	]), ...report.buildIssues.map((issue) => [
-		issue.severity === "error" ? "❌" : "⚠️",
+		issue.severity === "error" ? "🔴" : "⚠️",
 		issue.location ? text(formatLocation(issue.location, displayPath)) : "-",
 		text(issue.message)
 	])]));
@@ -16783,7 +16783,7 @@ function renderBuildIssues(report, displayPath) {
 function renderFailures(report, displayPath) {
 	if (report.failures.length === 0) return "";
 	return html((s) => {
-		s.addHeading(`❌ Failures (${report.failures.length})`, 3);
+		s.addHeading(`🔴 Failures (${report.failures.length})`, 3);
 		for (const failure of report.failures) {
 			const target = failure.target ? ` (${text(failure.target)})` : "";
 			s.addHeading(`${text(failure.name)}${target}`, 4);
@@ -16802,7 +16802,7 @@ function renderAllTests(report) {
 		const failed = cases.some((c) => c.testCase.result === "Failed");
 		const passed = cases.filter((c) => c.testCase.result === "Passed").length;
 		return {
-			label: `${failed ? "❌" : "✅"} ${text(group || "Tests")} (${passed}/${cases.length} passed)`,
+			label: `${failed ? "🔴" : "🟢"} ${text(group || "Tests")} (${passed}/${cases.length} passed)`,
 			list: html((s) => s.addList(cases.map(({ testCase }) => {
 				const duration = testCase.durationInSeconds !== void 0 ? ` (${formatDuration(testCase.durationInSeconds)})` : "";
 				return `${statusIcon(testCase.result)} ${text(testCase.name)}${duration}`;

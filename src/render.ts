@@ -75,7 +75,7 @@ function render(report: Report, options: RenderOptions, sections: Sections): str
   const displayPath = options.displayPath ?? ((file: string) => file);
   const parts = [
     html((s) => {
-      s.addHeading(`${hasErrors(report) ? "❌" : "✅"} ${text(options.title)}`, 2);
+      s.addHeading(`${hasErrors(report) ? "🔴" : "🟢"} ${text(options.title)}`, 2);
       if (sections.note) s.addQuote(text(sections.note));
     }),
     renderSummary(report),
@@ -98,8 +98,8 @@ function renderSummary(report: Report): string {
       s.addTable([
         headerRow([
           "Total",
-          "✅ Passed",
-          "❌ Failed",
+          "🟢 Passed",
+          "🔴 Failed",
           "⏭️ Skipped",
           "⚠️ Expected Failure",
           "⏱️ Duration",
@@ -149,7 +149,7 @@ function renderBuildIssues(report: Report, displayPath: (file: string) => string
       .addTable([
         headerRow(["Severity", "Location", "Message"]),
         ...report.buildIssues.map((issue) => [
-          issue.severity === "error" ? "❌" : "⚠️",
+          issue.severity === "error" ? "🔴" : "⚠️",
           issue.location ? text(formatLocation(issue.location, displayPath)) : "-",
           text(issue.message),
         ]),
@@ -160,7 +160,7 @@ function renderBuildIssues(report: Report, displayPath: (file: string) => string
 function renderFailures(report: Report, displayPath: (file: string) => string): string {
   if (report.failures.length === 0) return "";
   return html((s) => {
-    s.addHeading(`❌ Failures (${report.failures.length})`, 3);
+    s.addHeading(`🔴 Failures (${report.failures.length})`, 3);
     for (const failure of report.failures) {
       const target = failure.target ? ` (${text(failure.target)})` : "";
       s.addHeading(`${text(failure.name)}${target}`, 4);
@@ -189,7 +189,7 @@ function renderAllTests(report: Report): string {
   const details = [...groups].map(([group, cases]) => {
     const failed = cases.some((c) => c.testCase.result === "Failed");
     const passed = cases.filter((c) => c.testCase.result === "Passed").length;
-    const label = `${failed ? "❌" : "✅"} ${text(group || "Tests")} (${passed}/${cases.length} passed)`;
+    const label = `${failed ? "🔴" : "🟢"} ${text(group || "Tests")} (${passed}/${cases.length} passed)`;
     const list = html((s) =>
       s.addList(
         cases.map(({ testCase }) => {

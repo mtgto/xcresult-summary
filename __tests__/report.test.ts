@@ -231,7 +231,7 @@ describe("renderReport", () => {
     const report = buildReport({});
     report.buildIssues = [{ severity: "error", message: "linker failed" }];
     expect(renderReport(report, options)).toContain(
-      "<tr><td>❌</td><td>-</td><td>linker failed</td></tr>",
+      "<tr><td>🔴</td><td>-</td><td>linker failed</td></tr>",
     );
   });
 
