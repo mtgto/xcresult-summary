@@ -1,6 +1,6 @@
 // Subset of the JSON this action reads (only the fields it uses).
 // - `xcrun xcresulttool get ...`: written from the JSON Schema printed by `--schema`
-//   (schema version 0.5.0, Xcode 27).
+//   (schema version 0.5.0, Xcode 27.2). The schemas are saved in schemas/.
 // - `xcrun xccov view --report --json`: has no schema; written from its actual output.
 
 /** `xcresulttool get content-availability` */

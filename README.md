@@ -54,6 +54,8 @@ pnpm build   # dist/index.mjs must be committed
 
 `fixtures/json/` is generated from `fixtures/SampleApp` by `scripts/generate-fixtures.sh` (requires Xcode).
 
+`schemas/xcode-<version>/` keeps the JSON Schemas of the xcresulttool commands this action reads, saved by `scripts/dump-schemas.sh`. Run it with a new Xcode and diff the directories to see schema changes.
+
 To try the action locally:
 
 ```sh
