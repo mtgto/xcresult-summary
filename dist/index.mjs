@@ -16903,7 +16903,7 @@ async function mergeBundles(paths, outputPath) {
 		outputPath
 	]);
 }
-var SCHEMA_VERSION = "0.5.0";
+var SCHEMA_VERSION = "0.4.0";
 function xcresulttoolGet(subcommand, path) {
 	return xcrunJSON([
 		"xcresulttool",

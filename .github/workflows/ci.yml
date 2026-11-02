@@ -35,11 +35,15 @@ jobs:
         run: git diff --exit-code dist
 
   e2e:
-    # Xcode 27 is required (xcresulttool schema 0.5.0), and only the xcode-27 runner (arm64) has it.
+    # Xcode 27 is required (xcresulttool schema 0.4.0), and only the xcode-27 runner (arm64) has it.
     runs-on: xcode-27
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        xcode: ["27.0", "27.1", "27.2"]
     env:
-      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode_${{ matrix.xcode }}.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7.0.1
       - name: Show Xcode version
